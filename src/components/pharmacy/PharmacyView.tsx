@@ -612,8 +612,8 @@ export const PharmacyView: React.FC = () => {
                 </div>
 
                 {/* Billing Table */}
-                <div className="border border-slate-200 rounded-xl overflow-hidden mt-3">
-                  <table className="w-full text-left text-xs">
+                <div className="border border-slate-200 rounded-xl overflow-x-auto mt-3">
+                  <table className="w-full text-left text-xs min-w-[650px]">
                     <thead className="bg-slate-50 font-bold uppercase text-[10px] text-slate-600 border-b border-slate-200">
                       <tr>
                         <th className="py-2.5 px-3">Medicine & Form</th>
@@ -897,8 +897,9 @@ export const PharmacyView: React.FC = () => {
             </span>
           </div>
 
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[780px]">
+              <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Bill # & Time</th>
                 <th className="py-3 px-4">Patient / Customer</th>
@@ -955,6 +956,7 @@ export const PharmacyView: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -978,7 +980,8 @@ export const PharmacyView: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[780px]">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
                 <tr>
                   <th className="py-3.5 px-4">Medication & Indian Manufacturer</th>
@@ -1071,6 +1074,7 @@ export const PharmacyView: React.FC = () => {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}
@@ -1230,12 +1234,12 @@ export const PharmacyView: React.FC = () => {
                 </div>
 
                 {/* Prescribed Items & Stock Status */}
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
-                  <div className="p-2.5 bg-slate-100 font-bold text-slate-700 flex justify-between items-center text-[11px]">
+                <div className="border border-slate-200 rounded-xl overflow-x-auto">
+                  <div className="p-2.5 bg-slate-100 font-bold text-slate-700 flex justify-between items-center text-[11px] min-w-[550px]">
                     <span>Medicines to Deliver & Dispense ({selectedRxForDelivery.items.length} items)</span>
                     <span className="text-slate-500 font-normal">HSN Code: 3004 (Medicaments)</span>
                   </div>
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full text-left text-xs min-w-[550px]">
                     <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 border-b border-slate-200">
                       <tr>
                         <th className="py-2 px-3">Medicine & Dosage</th>

@@ -305,7 +305,8 @@ export const HrmView: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[760px]">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
                 <tr>
                   <th className="py-3.5 px-4">Employee</th>
@@ -428,6 +429,7 @@ export const HrmView: React.FC = () => {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}
@@ -553,7 +555,8 @@ export const HrmView: React.FC = () => {
               <span className="text-xs text-slate-500">Date: {formatDate(new Date().toISOString())}</span>
             </div>
 
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Staff Name & ID</th>
@@ -619,6 +622,7 @@ export const HrmView: React.FC = () => {
           </table>
         </div>
       </div>
+      </div>
       )}
 
       {/* Tab 3: Leaves Management */}
@@ -634,7 +638,8 @@ export const HrmView: React.FC = () => {
             </button>
           </div>
 
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Applicant</th>
@@ -702,6 +707,7 @@ export const HrmView: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -726,7 +732,8 @@ export const HrmView: React.FC = () => {
             </button>
           </div>
 
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Gate Pass #</th>
@@ -810,6 +817,7 @@ export const HrmView: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -823,7 +831,8 @@ export const HrmView: React.FC = () => {
             </div>
           </div>
 
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3 px-4">Employee</th>
@@ -882,6 +891,7 @@ export const HrmView: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

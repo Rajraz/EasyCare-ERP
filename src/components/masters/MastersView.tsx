@@ -690,7 +690,7 @@ export const MastersView: React.FC = () => {
           {/* Staff Table */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[760px]">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
                   <tr>
                     <th className="py-3.5 px-4">Staff Member & ID</th>
@@ -805,41 +805,43 @@ export const MastersView: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
-                <tr>
-                  <th className="py-3.5 px-4">Code</th>
-                  <th className="py-3.5 px-4">Department Name</th>
-                  <th className="py-3.5 px-4">Head of Department (HOD)</th>
-                  <th className="py-3.5 px-4">Floor</th>
-                  <th className="py-3.5 px-4">Bed Capacity</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {departments.map((dept) => (
-                  <tr key={dept.id} className="hover:bg-slate-50">
-                    <td className="py-3.5 px-4 font-mono font-bold text-sky-700">
-                      {dept.code}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-slate-900">{dept.name}</td>
-                    <td className="py-3.5 px-4 text-slate-700">{dept.headOfDepartment}</td>
-                    <td className="py-3.5 px-4">Floor {dept.floorNumber}</td>
-                    <td className="py-3.5 px-4 font-semibold text-slate-800">
-                      {dept.bedCapacity} Beds
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => handleOpenEditDept(dept)}
-                        className="px-3 py-1 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 rounded-lg font-bold text-xs transition-colors inline-flex items-center gap-1"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" /> Edit
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[650px]">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+                  <tr>
+                    <th className="py-3.5 px-4">Code</th>
+                    <th className="py-3.5 px-4">Department Name</th>
+                    <th className="py-3.5 px-4">Head of Department (HOD)</th>
+                    <th className="py-3.5 px-4">Floor</th>
+                    <th className="py-3.5 px-4">Bed Capacity</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {departments.map((dept) => (
+                    <tr key={dept.id} className="hover:bg-slate-50">
+                      <td className="py-3.5 px-4 font-mono font-bold text-sky-700">
+                        {dept.code}
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-slate-900">{dept.name}</td>
+                      <td className="py-3.5 px-4 text-slate-700">{dept.headOfDepartment}</td>
+                      <td className="py-3.5 px-4">Floor {dept.floorNumber}</td>
+                      <td className="py-3.5 px-4 font-semibold text-slate-800">
+                        {dept.bedCapacity} Beds
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          onClick={() => handleOpenEditDept(dept)}
+                          className="px-3 py-1 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 rounded-lg font-bold text-xs transition-colors inline-flex items-center gap-1"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -865,45 +867,47 @@ export const MastersView: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
-                  <tr>
-                    <th className="py-3.5 px-4">Ward Name</th>
-                    <th className="py-3.5 px-4">Ward Type</th>
-                    <th className="py-3.5 px-4">Floor</th>
-                    <th className="py-3.5 px-4">Daily Charge Rate (₹)</th>
-                    <th className="py-3.5 px-4">Total Beds</th>
-                    <th className="py-3.5 px-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {wards.map((w) => (
-                    <tr key={w.id} className="hover:bg-slate-50">
-                      <td className="py-3.5 px-4 font-bold text-slate-900">{w.name}</td>
-                      <td className="py-3.5 px-4">
-                        <Badge variant="purple" size="sm">
-                          {w.wardType}
-                        </Badge>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-700">{w.floor}</td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">
-                        {formatCurrency(w.chargePerDay)} / day
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-800">
-                        {w.totalBeds} Beds
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => handleOpenEditWard(w)}
-                          className="px-3 py-1 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 rounded-lg font-bold text-xs transition-colors inline-flex items-center gap-1"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" /> Edit
-                        </button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs min-w-[650px]">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+                    <tr>
+                      <th className="py-3.5 px-4">Ward Name</th>
+                      <th className="py-3.5 px-4">Ward Type</th>
+                      <th className="py-3.5 px-4">Floor</th>
+                      <th className="py-3.5 px-4">Daily Charge Rate (₹)</th>
+                      <th className="py-3.5 px-4">Total Beds</th>
+                      <th className="py-3.5 px-4 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {wards.map((w) => (
+                      <tr key={w.id} className="hover:bg-slate-50">
+                        <td className="py-3.5 px-4 font-bold text-slate-900">{w.name}</td>
+                        <td className="py-3.5 px-4">
+                          <Badge variant="purple" size="sm">
+                            {w.wardType}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700">{w.floor}</td>
+                        <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">
+                          {formatCurrency(w.chargePerDay)} / day
+                        </td>
+                        <td className="py-3.5 px-4 font-semibold text-slate-800">
+                          {w.totalBeds} Beds
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            onClick={() => handleOpenEditWard(w)}
+                            className="px-3 py-1 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 rounded-lg font-bold text-xs transition-colors inline-flex items-center gap-1"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -927,52 +931,54 @@ export const MastersView: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
-                  <tr>
-                    <th className="py-3.5 px-4">Bed Number</th>
-                    <th className="py-3.5 px-4">Assigned Ward</th>
-                    <th className="py-3.5 px-4">Daily Rate (₹)</th>
-                    <th className="py-3.5 px-4">Current Status</th>
-                    <th className="py-3.5 px-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {beds.map((b) => (
-                    <tr key={b.id} className="hover:bg-slate-50">
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                        {b.bedNumber}
-                      </td>
-                      <td className="py-3.5 px-4 font-medium text-slate-800">{b.wardName}</td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
-                        {formatCurrency(b.dailyRate)} / day
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <Badge
-                          variant={
-                            b.status === 'available'
-                              ? 'success'
-                              : b.status === 'occupied'
-                              ? 'danger'
-                              : 'warning'
-                          }
-                          size="sm"
-                        >
-                          {b.status}
-                        </Badge>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => handleOpenEditBed(b)}
-                          className="px-3 py-1 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 rounded-lg font-bold text-xs transition-colors inline-flex items-center gap-1"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" /> Edit
-                        </button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs min-w-[650px]">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+                    <tr>
+                      <th className="py-3.5 px-4">Bed Number</th>
+                      <th className="py-3.5 px-4">Assigned Ward</th>
+                      <th className="py-3.5 px-4">Daily Rate (₹)</th>
+                      <th className="py-3.5 px-4">Current Status</th>
+                      <th className="py-3.5 px-4 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {beds.map((b) => (
+                      <tr key={b.id} className="hover:bg-slate-50">
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                          {b.bedNumber}
+                        </td>
+                        <td className="py-3.5 px-4 font-medium text-slate-800">{b.wardName}</td>
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
+                          {formatCurrency(b.dailyRate)} / day
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <Badge
+                            variant={
+                              b.status === 'available'
+                                ? 'success'
+                                : b.status === 'occupied'
+                                ? 'danger'
+                                : 'warning'
+                            }
+                            size="sm"
+                          >
+                            {b.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            onClick={() => handleOpenEditBed(b)}
+                            className="px-3 py-1 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 rounded-lg font-bold text-xs transition-colors inline-flex items-center gap-1"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -1002,7 +1008,7 @@ export const MastersView: React.FC = () => {
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[760px]">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
                   <tr>
                     <th className="py-3.5 px-4">Drug Code & Name</th>
@@ -1096,7 +1102,7 @@ export const MastersView: React.FC = () => {
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[760px]">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
                   <tr>
                     <th className="py-3.5 px-4">Test Code & Name</th>

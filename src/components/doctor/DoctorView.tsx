@@ -47,6 +47,7 @@ export const DoctorView: React.FC = () => {
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(
     appointments[0] || null
   );
+  const [mobileDoctorTab, setMobileDoctorTab] = useState<'queue' | 'consult'>('queue');
 
   // Consultation state
   const [diagnosis, setDiagnosis] = useState('');
@@ -259,9 +260,39 @@ export const DoctorView: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile View Toggle Bar (< lg screens) */}
+      <div className="lg:hidden flex rounded-xl bg-slate-200/80 p-1">
+        <button
+          type="button"
+          onClick={() => setMobileDoctorTab('queue')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+            mobileDoctorTab === 'queue'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Token Queue ({appointments.filter((a) => a.status !== 'completed').length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileDoctorTab('consult')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+            mobileDoctorTab === 'consult'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Consultation & Rx {selectedAppointment ? `(#${selectedAppointment.tokenNumber})` : ''}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Today's OPD Token Queue */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <div
+          className={`bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col ${
+            mobileDoctorTab === 'queue' ? 'flex' : 'hidden lg:flex'
+          }`}
+        >
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <span className="font-bold text-xs uppercase text-slate-600">Today's Token Queue</span>
             <span className="text-xs text-slate-400 font-mono">Room 304</span>
@@ -277,6 +308,7 @@ export const DoctorView: React.FC = () => {
                   onClick={() => {
                     setSelectedAppointment(apt);
                     setDiagnosis(apt.doctorNotes || '');
+                    setMobileDoctorTab('consult');
                   }}
                   className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
                     isSelected
@@ -322,7 +354,7 @@ export const DoctorView: React.FC = () => {
         </div>
 
         {/* Right Column: Active Consultation Desk */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-6 ${mobileDoctorTab === 'consult' ? 'block' : 'hidden lg:block'}`}>
           {selectedAppointment ? (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
               {/* Header: Selected Patient Info & Vitals */}

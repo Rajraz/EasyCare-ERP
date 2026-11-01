@@ -207,34 +207,36 @@ export const OperationsView: React.FC = () => {
           <span className="text-xs text-slate-500">Facility Quality Assurance</span>
         </div>
 
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Medical Equipment Name</th>
-              <th className="py-3 px-4">Department Location</th>
-              <th className="py-3 px-4">Last Certified Service</th>
-              <th className="py-3 px-4">Next Inspection Due</th>
-              <th className="py-3 px-4">Calibration Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {equipmentList.map((eq) => (
-              <tr key={eq.id} className="hover:bg-slate-50">
-                <td className="py-3 px-4 font-bold text-slate-900">{eq.name}</td>
-                <td className="py-3 px-4 text-slate-600">{eq.dept}</td>
-                <td className="py-3 px-4 font-mono text-slate-600">{eq.lastService}</td>
-                <td className="py-3 px-4 font-mono font-semibold text-slate-800">
-                  {eq.nextService}
-                </td>
-                <td className="py-3 px-4">
-                  <Badge variant={eq.status === 'optimal' ? 'success' : 'warning'} size="sm">
-                    {eq.status === 'optimal' ? 'Calibrated (Optimal)' : 'Service Due Soon'}
-                  </Badge>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[650px]">
+            <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+              <tr>
+                <th className="py-3 px-4">Medical Equipment Name</th>
+                <th className="py-3 px-4">Department Location</th>
+                <th className="py-3 px-4">Last Certified Service</th>
+                <th className="py-3 px-4">Next Inspection Due</th>
+                <th className="py-3 px-4">Calibration Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {equipmentList.map((eq) => (
+                <tr key={eq.id} className="hover:bg-slate-50">
+                  <td className="py-3 px-4 font-bold text-slate-900">{eq.name}</td>
+                  <td className="py-3 px-4 text-slate-600">{eq.dept}</td>
+                  <td className="py-3 px-4 font-mono text-slate-600">{eq.lastService}</td>
+                  <td className="py-3 px-4 font-mono font-semibold text-slate-800">
+                    {eq.nextService}
+                  </td>
+                  <td className="py-3 px-4">
+                    <Badge variant={eq.status === 'optimal' ? 'success' : 'warning'} size="sm">
+                      {eq.status === 'optimal' ? 'Calibrated (Optimal)' : 'Service Due Soon'}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Ambulance Dispatch Modal */}

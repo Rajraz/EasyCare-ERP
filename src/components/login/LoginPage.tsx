@@ -120,7 +120,7 @@ export const LoginPage: React.FC = () => {
       <div className="absolute bottom-10 right-10 w-[420px] h-[420px] bg-emerald-400/25 rounded-full blur-[110px] pointer-events-none" />
 
       {/* Pure Centered White Sign-In Card with Glowing Green Shadow */}
-      <div className="w-full max-w-[420px] bg-white/95 backdrop-blur-2xl border border-emerald-200/80 rounded-3xl p-7 sm:p-9 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-500/20 relative z-10 font-medium">
+      <div className="w-full max-w-[420px] bg-white/95 backdrop-blur-2xl border border-emerald-200/80 rounded-3xl p-5 sm:p-9 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-500/20 relative z-10 font-medium">
         
         {/* Brand Logo & Header - Easy Care only shown, subtitle removed */}
         <div className="text-center mb-6">

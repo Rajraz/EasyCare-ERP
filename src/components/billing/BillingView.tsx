@@ -200,8 +200,8 @@ export const BillingView: React.FC = () => {
 
       {/* Invoices Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div className="relative w-80">
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -216,8 +216,9 @@ export const BillingView: React.FC = () => {
           </span>
         </div>
 
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[820px]">
+            <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]">
             <tr>
               <th className="py-3.5 px-4">Invoice # & Date (DD-MM-YYYY)</th>
               <th className="py-3.5 px-4">Patient Name & MRN</th>
@@ -332,6 +333,7 @@ export const BillingView: React.FC = () => {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* New Invoice Modal */}

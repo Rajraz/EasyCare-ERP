@@ -54,30 +54,30 @@ export const Modal: React.FC<ModalProps> = ({
       />
 
       {/* Modal Dialog */}
-      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
         <div
           className={cn(
-            'relative w-full rounded-2xl bg-white shadow-2xl transition-all border border-slate-200 overflow-hidden',
+            'relative w-full rounded-2xl bg-white shadow-2xl transition-all border border-slate-200 overflow-hidden my-auto',
             maxWidthClass
           )}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
-              {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 sm:px-6 py-3 sm:py-4 bg-slate-50/50">
+            <div className="pr-2 min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-800 truncate">{title}</h3>
+              {subtitle && <p className="text-xs text-slate-500 mt-0.5 truncate">{subtitle}</p>}
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+          <div className="p-3.5 sm:p-6 max-h-[82vh] overflow-y-auto">{children}</div>
         </div>
       </div>
     </div>

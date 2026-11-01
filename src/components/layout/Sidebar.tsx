@@ -14,7 +14,10 @@ import {
   Layers,
   LogOut,
   Ticket,
+  X,
+  Activity,
 } from 'lucide-react';
+import Drawer from '@mui/material/Drawer';
 import { useAuth } from '../../context/AuthContext';
 import { useHospital } from '../../context/HospitalContext';
 import { cn } from '../../lib/utils';
@@ -36,9 +39,16 @@ export type ActiveModule =
 interface SidebarProps {
   activeModule: ActiveModule;
   onSelectModule: (module: ActiveModule) => void;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onSelectModule }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeModule,
+  onSelectModule,
+  isOpenMobile,
+  onCloseMobile,
+}) => {
   const { hasAccess, logout, currentUser } = useAuth();
   const { patients, beds, pharmacyItems, labOrders, leaves, hospitalProfile, opdTokens } = useHospital();
 
@@ -136,11 +146,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onSelectModule }
     },
   ];
 
-  return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 min-h-[calc(100vh-4rem)]">
+  const handleItemClick = (id: ActiveModule) => {
+    onSelectModule(id);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
+  const renderNavContent = (isMobile: boolean) => (
+    <div className="flex flex-col h-full">
       {/* Navigation Header */}
-      <div className="p-4 border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-        Clinical & ERP Modules
+      <div className="p-4 border-b border-slate-800 flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="flex items-center gap-2">
+          {isMobile && (
+            <div className="w-6 h-6 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
+              <Activity className="w-3.5 h-3.5" />
+            </div>
+          )}
+          <span>{isMobile ? hospitalProfile.appName : 'Clinical & ERP Modules'}</span>
+        </div>
+        {isMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            aria-label="Close Mobile Navigation"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Nav List */}
@@ -153,11 +186,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onSelectModule }
           return (
             <button
               key={item.id}
-              onClick={() => onSelectModule(item.id)}
+              onClick={() => handleItemClick(item.id)}
               className={cn(
                 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition-all group',
                 isActive
-                  ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                  ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30 font-semibold'
                   : 'text-slate-300 hover:bg-slate-800 hover:text-white',
                 !isAllowed && 'opacity-40 hover:opacity-75'
               )}
@@ -204,13 +237,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onSelectModule }
       </nav>
 
       {/* Sidebar Footer */}
-      <div className="p-4 border-t border-slate-800 text-slate-400 text-xs bg-slate-950/40 space-y-3">
+      <div className="p-4 border-t border-slate-800 text-slate-400 text-xs bg-slate-950/40 space-y-3 shrink-0">
         <div className="flex items-center justify-between text-[11px]">
           <span className="font-semibold text-slate-200">{hospitalProfile.appName} v2.4</span>
           <span className="text-emerald-400 font-mono">v18.3-Prod</span>
         </div>
         <p className="text-[10px] text-slate-500">
-          HIPAA & HL7 Standards Compliant
+          NABH & Indian Healthcare Standards
         </p>
 
         {/* User Quick Info & Sign Out */}
@@ -224,7 +257,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onSelectModule }
             </p>
           </div>
           <button
-            onClick={logout}
+            onClick={() => {
+              if (onCloseMobile) onCloseMobile();
+              logout();
+            }}
             title="Sign Out of Workstation"
             className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/50 hover:text-rose-400 text-slate-400 border border-slate-700/60 transition-colors shrink-0"
           >
@@ -232,6 +268,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onSelectModule }
           </button>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar (Only on large screens: lg+) */}
+      <aside className="hidden lg:flex w-64 bg-slate-900 text-slate-300 flex-col shrink-0 min-h-[calc(100vh-4rem)] border-r border-slate-800">
+        {renderNavContent(false)}
+      </aside>
+
+      {/* Mobile / Tablet Responsive Drawer (Slide-out menu for < lg screens) */}
+      <Drawer
+        anchor="left"
+        open={isOpenMobile || false}
+        onClose={onCloseMobile}
+        sx={{
+          display: { xs: 'block', lg: 'none' },
+          '& .MuiDrawer-paper': {
+            width: 280,
+            maxWidth: '85vw',
+            bgcolor: '#0f172a',
+            color: '#cbd5e1',
+            borderRight: '1px solid #1e293b',
+          },
+        }}
+      >
+        <div className="h-full bg-slate-900 text-slate-300">
+          {renderNavContent(true)}
+        </div>
+      </Drawer>
+    </>
   );
 };

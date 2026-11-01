@@ -18,6 +18,8 @@ import {
   Smartphone,
   Settings,
   UserCheck,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useHospital } from '../../context/HospitalContext';
@@ -28,9 +30,16 @@ import { Modal } from '../common/Modal';
 interface NavbarProps {
   onNavigateEmergency?: () => void;
   onNavigateMasters?: () => void;
+  onToggleMobileMenu?: () => void;
+  isMobileMenuOpen?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigateEmergency, onNavigateMasters }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onNavigateEmergency,
+  onNavigateMasters,
+  onToggleMobileMenu,
+  isMobileMenuOpen,
+}) => {
   const { currentUser, logout } = useAuth();
   const { staff, attendance, clockInStaff, clockOutStaff, hospitalProfile } = useHospital();
   const [userProfileMenuOpen, setUserProfileMenuOpen] = useState(false);
@@ -79,18 +88,31 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateEmergency, onNavigateM
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
-      <div className="px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
-        {/* Brand / Logo - Easy Care only, subtitle removed */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-            <Activity className="w-6 h-6 animate-pulse" />
+      <div className="px-3 sm:px-4 lg:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Brand / Logo & Mobile Menu Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Hamburger Menu Toggle on Mobile */}
+          <button
+            onClick={onToggleMobileMenu}
+            className="lg:hidden p-2 -ml-1 rounded-xl text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            aria-label="Toggle Mobile Navigation Drawer"
+          >
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5 text-slate-800" />
+            ) : (
+              <Menu className="w-5 h-5 text-slate-800" />
+            )}
+          </button>
+
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
+            <Activity className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-slate-900">
+          <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 truncate max-w-[130px] sm:max-w-none">
             {hospitalProfile.appName || 'Easy Care'}
           </span>
         </div>
 
-        {/* Center: System Status & Emergency Hotkey */}
+        {/* Center: System Status & Emergency Hotkey (Desktop/Tablet) */}
         <div className="hidden md:flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -104,33 +126,37 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateEmergency, onNavigateM
         </div>
 
         {/* Right: Attendance & User Profile */}
-        <div className="flex items-center gap-3">
-          {/* Biometric & Geolocation Attendance Button */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Biometric & Geolocation Attendance Button (Responsive for all screen sizes) */}
           <button
             onClick={() => {
               setPunchResult(null);
               setAttendanceModalOpen(true);
             }}
             title={isClockedIn ? 'Click to Review Duty & Clock Out' : 'Click to Mark Attendance Clock In'}
-            className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
               isClockedIn
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 shadow-xs'
                 : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
             }`}
           >
-            <Clock className="w-3.5 h-3.5 text-sky-600" />
+            <Clock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
             {isClockedIn ? (
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Duty: Clocked In
+                <span className="hidden sm:inline">Duty: Clocked In</span>
+                <span className="sm:hidden font-mono text-[11px]">On Duty</span>
               </span>
             ) : (
-              'Mark Attendance'
+              <span>
+                <span className="hidden sm:inline">Mark Attendance</span>
+                <span className="sm:hidden text-[11px]">Punch</span>
+              </span>
             )}
           </button>
 
           {/* User Profile Info & Sign Out Menu */}
-          <div className="relative pl-2 border-l border-slate-200">
+          <div className="relative pl-1 sm:pl-2 border-l border-slate-200">
             <button
               onClick={() => setUserProfileMenuOpen(!userProfileMenuOpen)}
               className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors text-left"

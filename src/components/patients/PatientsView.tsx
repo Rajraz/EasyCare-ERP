@@ -14,7 +14,13 @@ import {
   CheckCircle,
   Ticket,
 } from 'lucide-react';
+import {
+  Button as MuiButton,
+  Chip as MuiChip,
+  Tooltip as MuiTooltip,
+} from '@mui/material';
 import { useHospital } from '../../context/HospitalContext';
+import { useNotification } from '../../context/NotificationContext';
 import { Patient } from '../../types/hospital';
 import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
@@ -23,6 +29,7 @@ import { generateMRN, formatDate } from '../../lib/utils';
 
 export const PatientsView: React.FC = () => {
   const { patients, addPatient, prescriptions, labOrders, beds, inwardOpdToken, staff } = useHospital();
+  const { showNotification } = useNotification();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBloodGroup, setSelectedBloodGroup] = useState<string>('all');
@@ -94,6 +101,7 @@ export const PatientsView: React.FC = () => {
     });
 
     setTokenPatientTarget(null);
+    showNotification(`OPD Token ${tok.tokenDisplay} inwarded for ${tokenPatientTarget.firstName}! Queue position #${tok.tokenNumber}.`, 'success');
     setTokenFeedback(`OPD Token ${tok.tokenDisplay} successfully inwarded for ${tokenPatientTarget.firstName}! Queue position #${tok.tokenNumber}.`);
     setTimeout(() => setTokenFeedback(null), 5000);
   };
@@ -134,6 +142,7 @@ export const PatientsView: React.FC = () => {
 
     setIsRegisterModalOpen(false);
     setActiveEmrPatient(newPat);
+    showNotification(`Patient ${newPat.firstName} ${newPat.lastName} registered! Assigned MRN: ${newPat.mrn}`, 'success');
     setFormData({
       firstName: '',
       lastName: '',
@@ -178,13 +187,24 @@ export const PatientsView: React.FC = () => {
           </p>
         </div>
 
-        <button
+        <MuiButton
+          variant="contained"
           onClick={() => setIsRegisterModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-2 self-start sm:self-auto"
+          sx={{
+            bgcolor: '#0284c7',
+            '&:hover': { bgcolor: '#0369a1' },
+            textTransform: 'none',
+            fontWeight: 700,
+            fontSize: '0.8125rem',
+            borderRadius: '0.75rem',
+            py: 1,
+            px: 2.5,
+            boxShadow: '0 2px 4px rgba(2, 132, 199, 0.25)',
+          }}
+          startIcon={<UserPlus className="w-4 h-4" />}
         >
-          <UserPlus className="w-4 h-4" />
           Register New Patient
-        </button>
+        </MuiButton>
       </div>
 
       {tokenFeedback && (
@@ -200,8 +220,8 @@ export const PatientsView: React.FC = () => {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4 justify-between">
-        <div className="relative w-full md:w-96">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center gap-4 justify-between">
+        <div className="relative w-full lg:w-96">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -212,25 +232,29 @@ export const PatientsView: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <span className="text-xs text-slate-500 whitespace-nowrap">Blood Group:</span>
-          <select
-            value={selectedBloodGroup}
-            onChange={(e) => setSelectedBloodGroup(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
-          >
-            <option value="all">All Groups</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
+          <span className="text-xs font-semibold text-slate-500 mr-1">Blood Group:</span>
+          {['all', 'A+', 'B+', 'O+', 'AB+', 'A-', 'B-', 'O-', 'AB-'].map((bg) => (
+            <MuiChip
+              key={bg}
+              label={bg === 'all' ? 'All' : bg}
+              clickable
+              color={selectedBloodGroup === bg ? 'primary' : 'default'}
+              variant={selectedBloodGroup === bg ? 'filled' : 'outlined'}
+              size="small"
+              onClick={() => setSelectedBloodGroup(bg)}
+              sx={{
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                ...(selectedBloodGroup === bg
+                  ? { bgcolor: '#0284c7', color: '#fff' }
+                  : { bgcolor: '#f8fafc', color: '#475569' }),
+              }}
+            />
+          ))}
           <span className="text-xs text-slate-400 pl-2">
-            Showing {filteredPatients.length} of {patients.length} patients
+            ({filteredPatients.length})
           </span>
         </div>
       </div>
@@ -320,25 +344,55 @@ export const PatientsView: React.FC = () => {
                     </td>
 
                     <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => {
-                            setTokenPatientTarget(patient);
-                            setIssueDoctorId(doctors[0]?.id || '');
-                          }}
-                          className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs border border-emerald-200 transition-colors inline-flex items-center gap-1.5"
-                          title="Issue OPD Token for Today"
-                        >
-                          <Ticket className="w-3.5 h-3.5" />
-                          Issue Token
-                        </button>
-                        <button
-                          onClick={() => setActiveEmrPatient(patient)}
-                          className="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs border border-sky-200 transition-colors inline-flex items-center gap-1.5"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          View EMR
-                        </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <MuiTooltip title="Inward Daily OPD Token for Consultation Queue" arrow>
+                          <MuiButton
+                            size="small"
+                            variant="outlined"
+                            onClick={() => {
+                              setTokenPatientTarget(patient);
+                              setIssueDoctorId(doctors[0]?.id || '');
+                            }}
+                            sx={{
+                              color: '#059669',
+                              borderColor: '#a7f3d0',
+                              bgcolor: '#ecfdf5',
+                              '&:hover': { bgcolor: '#d1fae5', borderColor: '#6ee7b7' },
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: '0.75rem',
+                              borderRadius: '0.5rem',
+                              py: 0.5,
+                              px: 1.5,
+                            }}
+                            startIcon={<Ticket className="w-3.5 h-3.5" />}
+                          >
+                            Issue Token
+                          </MuiButton>
+                        </MuiTooltip>
+
+                        <MuiTooltip title="Open Electronic Medical Record (EMR) & Clinical History" arrow>
+                          <MuiButton
+                            size="small"
+                            variant="outlined"
+                            onClick={() => setActiveEmrPatient(patient)}
+                            sx={{
+                              color: '#0284c7',
+                              borderColor: '#bae6fd',
+                              bgcolor: '#f0f9ff',
+                              '&:hover': { bgcolor: '#e0f2fe', borderColor: '#7dd3fc' },
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: '0.75rem',
+                              borderRadius: '0.5rem',
+                              py: 0.5,
+                              px: 1.5,
+                            }}
+                            startIcon={<Eye className="w-3.5 h-3.5" />}
+                          >
+                            View EMR
+                          </MuiButton>
+                        </MuiTooltip>
                       </div>
                     </td>
                   </tr>
@@ -510,19 +564,33 @@ export const PatientsView: React.FC = () => {
           </div>
 
           <div className="pt-4 border-t border-slate-200 flex justify-end gap-2">
-            <button
+            <MuiButton
               type="button"
+              variant="outlined"
               onClick={() => setIsRegisterModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50"
+              sx={{
+                textTransform: 'none',
+                borderColor: '#cbd5e1',
+                color: '#475569',
+                borderRadius: '0.5rem',
+                fontWeight: 600,
+              }}
             >
               Cancel
-            </button>
-            <button
+            </MuiButton>
+            <MuiButton
               type="submit"
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg shadow-sm"
+              variant="contained"
+              sx={{
+                textTransform: 'none',
+                bgcolor: '#0284c7',
+                '&:hover': { bgcolor: '#0369a1' },
+                borderRadius: '0.5rem',
+                fontWeight: 700,
+              }}
             >
               Complete Registration & Issue MRN
-            </button>
+            </MuiButton>
           </div>
         </form>
       </Modal>
@@ -724,20 +792,34 @@ export const PatientsView: React.FC = () => {
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
-              <button
+              <MuiButton
                 type="button"
+                variant="outlined"
                 onClick={() => setTokenPatientTarget(null)}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50"
+                sx={{
+                  textTransform: 'none',
+                  borderColor: '#cbd5e1',
+                  color: '#475569',
+                  borderRadius: '0.75rem',
+                  fontWeight: 600,
+                }}
               >
                 Cancel
-              </button>
-              <button
+              </MuiButton>
+              <MuiButton
                 type="submit"
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs flex items-center gap-1.5"
+                variant="contained"
+                sx={{
+                  textTransform: 'none',
+                  bgcolor: '#059669',
+                  '&:hover': { bgcolor: '#047857' },
+                  borderRadius: '0.75rem',
+                  fontWeight: 700,
+                }}
+                startIcon={<Ticket className="w-4 h-4" />}
               >
-                <Ticket className="w-4 h-4" />
                 Generate & Inward Token
-              </button>
+              </MuiButton>
             </div>
           </form>
         </Modal>

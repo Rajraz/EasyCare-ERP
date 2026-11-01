@@ -10,7 +10,14 @@ import {
   Sparkles,
   ArrowRightLeft,
 } from 'lucide-react';
+import {
+  Button as MuiButton,
+  Chip as MuiChip,
+  LinearProgress,
+  Tooltip as MuiTooltip,
+} from '@mui/material';
 import { useHospital } from '../../context/HospitalContext';
+import { useNotification } from '../../context/NotificationContext';
 import { Bed, Ward } from '../../types/hospital';
 import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
@@ -25,6 +32,7 @@ export const WardsView: React.FC = () => {
     admitPatientToBed,
     dischargePatientFromBed,
   } = useHospital();
+  const { showNotification } = useNotification();
 
   const [selectedWardFilter, setSelectedWardFilter] = useState<string>('all');
   const [activeBedModal, setActiveBedModal] = useState<Bed | null>(null);
@@ -48,6 +56,7 @@ export const WardsView: React.FC = () => {
     if (!pat) return;
 
     admitPatientToBed(activeBedModal.id, pat.id, `${pat.firstName} ${pat.lastName}`);
+    showNotification(`Patient ${pat.firstName} ${pat.lastName} admitted to Bed ${activeBedModal.bedNumber} (${activeBedModal.wardName})`, 'success');
     setActiveBedModal(null);
     setSelectedPatientId('');
   };
@@ -56,6 +65,7 @@ export const WardsView: React.FC = () => {
     if (!activeBedModal) return;
     if (confirm(`Confirm discharge of ${activeBedModal.currentPatientName} from Bed ${activeBedModal.bedNumber}? Bed will be scheduled for immediate cleaning.`)) {
       dischargePatientFromBed(activeBedModal.id);
+      showNotification(`Discharged ${activeBedModal.currentPatientName} from Bed ${activeBedModal.bedNumber}. Bed sent for sanitization.`, 'info');
       setActiveBedModal(null);
     }
   };
@@ -96,30 +106,46 @@ export const WardsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Ward Filter Bar */}
+      {/* Ward Filter Bar with Interactive Chips */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <button
+        <MuiChip
+          label={`All Hospital Wards (${totalBeds} Beds)`}
+          clickable
+          color={selectedWardFilter === 'all' ? 'primary' : 'default'}
+          variant={selectedWardFilter === 'all' ? 'filled' : 'outlined'}
           onClick={() => setSelectedWardFilter('all')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
-            selectedWardFilter === 'all'
-              ? 'bg-sky-600 text-white shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          All Hospital Wards ({totalBeds} Beds)
-        </button>
+          sx={{
+            fontWeight: 700,
+            fontSize: '0.75rem',
+            borderRadius: '0.75rem',
+            py: 2,
+            px: 1,
+            cursor: 'pointer',
+            ...(selectedWardFilter === 'all'
+              ? { bgcolor: '#0284c7', color: '#fff' }
+              : { bgcolor: '#fff', color: '#475569', borderColor: '#cbd5e1' }),
+          }}
+        />
         {wards.map((w) => (
-          <button
+          <MuiChip
             key={w.id}
+            label={`${w.name} (${formatCurrency(w.chargePerDay)}/day)`}
+            clickable
+            color={selectedWardFilter === w.id ? 'primary' : 'default'}
+            variant={selectedWardFilter === w.id ? 'filled' : 'outlined'}
             onClick={() => setSelectedWardFilter(w.id)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
-              selectedWardFilter === w.id
-                ? 'bg-sky-600 text-white shadow-xs'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            {w.name} ({formatCurrency(w.chargePerDay)}/day)
-          </button>
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              borderRadius: '0.75rem',
+              py: 2,
+              px: 1,
+              cursor: 'pointer',
+              ...(selectedWardFilter === w.id
+                ? { bgcolor: '#0284c7', color: '#fff' }
+                : { bgcolor: '#fff', color: '#475569', borderColor: '#cbd5e1' }),
+            }}
+          />
         ))}
       </div>
 
@@ -128,6 +154,7 @@ export const WardsView: React.FC = () => {
         {filteredWards.map((ward) => {
           const wardBeds = beds.filter((b) => b.wardId === ward.id);
           const wardOccupied = wardBeds.filter((b) => b.status === 'occupied').length;
+          const wardPercent = Math.round((wardOccupied / (wardBeds.length || 1)) * 100);
 
           return (
             <div
@@ -135,7 +162,7 @@ export const WardsView: React.FC = () => {
               className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
             >
               {/* Ward Header */}
-              <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2.5">
                     <h2 className="text-sm font-bold text-slate-800">{ward.name}</h2>
@@ -151,8 +178,24 @@ export const WardsView: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="text-xs font-semibold text-slate-600">
-                  Occupancy: <span className="text-sky-600 font-bold">{wardOccupied}</span> / {wardBeds.length} Beds ({Math.round((wardOccupied / wardBeds.length) * 100)}%)
+                <div className="flex flex-col sm:items-end gap-1 min-w-[200px]">
+                  <div className="text-xs font-semibold text-slate-600 flex items-center justify-between sm:justify-end gap-2 w-full">
+                    <span>Ward Occupancy:</span>
+                    <span className="text-sky-700 font-bold">{wardOccupied} / {wardBeds.length} ({wardPercent}%)</span>
+                  </div>
+                  <LinearProgress
+                    variant="determinate"
+                    value={wardPercent}
+                    sx={{
+                      width: '100%',
+                      height: 6,
+                      borderRadius: 3,
+                      bgcolor: '#e2e8f0',
+                      '& .MuiLinearProgress-bar': {
+                        bgcolor: wardPercent > 85 ? '#e11d48' : wardPercent > 60 ? '#f59e0b' : '#0d9488',
+                      },
+                    }}
+                  />
                 </div>
               </div>
 
@@ -274,22 +317,42 @@ export const WardsView: React.FC = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  <MuiButton
+                    variant="contained"
+                    fullWidth
                     onClick={handleDischarge}
-                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                    sx={{
+                      bgcolor: '#e11d48',
+                      '&:hover': { bgcolor: '#be123c' },
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      borderRadius: '0.75rem',
+                      py: 1,
+                    }}
+                    startIcon={<LogOut className="w-4 h-4" />}
                   >
-                    <LogOut className="w-4 h-4" />
                     Discharge & Sanitize Bed
-                  </button>
-                  <button
+                  </MuiButton>
+                  <MuiButton
+                    variant="outlined"
                     onClick={() => {
                       updateBedStatus(activeBedModal.id, 'cleaning');
+                      showNotification(`Bed ${activeBedModal.bedNumber} sent for cleaning`, 'info');
                       setActiveBedModal(null);
                     }}
-                    className="px-3 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold rounded-xl"
+                    sx={{
+                      color: '#b45309',
+                      borderColor: '#fde68a',
+                      bgcolor: '#fffbeb',
+                      '&:hover': { bgcolor: '#fef3c7', borderColor: '#fcd34d' },
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      borderRadius: '0.75rem',
+                      whiteSpace: 'nowrap',
+                    }}
                   >
                     Send Cleaning Request
-                  </button>
+                  </MuiButton>
                 </div>
               </div>
             ) : (
@@ -322,14 +385,23 @@ export const WardsView: React.FC = () => {
                       )}
                     </div>
 
-                    <button
+                    <MuiButton
                       type="submit"
+                      variant="contained"
+                      fullWidth
                       disabled={!selectedPatientId}
-                      className="w-full py-2.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold rounded-xl transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                      sx={{
+                        bgcolor: '#0284c7',
+                        '&:hover': { bgcolor: '#0369a1' },
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        borderRadius: '0.75rem',
+                        py: 1,
+                      }}
+                      startIcon={<UserPlus className="w-4 h-4" />}
                     >
-                      <UserPlus className="w-4 h-4" />
                       Admit Patient to Bed {activeBedModal.bedNumber}
-                    </button>
+                    </MuiButton>
                   </form>
                 ) : (
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
@@ -344,33 +416,66 @@ export const WardsView: React.FC = () => {
                 <div className="pt-3 border-t border-slate-200">
                   <p className="text-slate-500 font-semibold mb-2">Change Bed Status:</p>
                   <div className="grid grid-cols-3 gap-2">
-                    <button
+                    <MuiButton
+                      size="small"
+                      variant="outlined"
                       onClick={() => {
                         updateBedStatus(activeBedModal.id, 'available');
+                        showNotification(`Bed ${activeBedModal.bedNumber} marked as Available`, 'success');
                         setActiveBedModal(null);
                       }}
-                      className="py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold hover:bg-emerald-100"
+                      sx={{
+                        color: '#059669',
+                        borderColor: '#a7f3d0',
+                        bgcolor: '#ecfdf5',
+                        '&:hover': { bgcolor: '#d1fae5', borderColor: '#6ee7b7' },
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        borderRadius: '0.5rem',
+                      }}
                     >
                       Available
-                    </button>
-                    <button
+                    </MuiButton>
+                    <MuiButton
+                      size="small"
+                      variant="outlined"
                       onClick={() => {
                         updateBedStatus(activeBedModal.id, 'cleaning');
+                        showNotification(`Bed ${activeBedModal.bedNumber} marked for Cleaning`, 'info');
                         setActiveBedModal(null);
                       }}
-                      className="py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-bold hover:bg-amber-100"
+                      sx={{
+                        color: '#d97706',
+                        borderColor: '#fde68a',
+                        bgcolor: '#fffbeb',
+                        '&:hover': { bgcolor: '#fef3c7', borderColor: '#fcd34d' },
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        borderRadius: '0.5rem',
+                      }}
                     >
                       Cleaning
-                    </button>
-                    <button
+                    </MuiButton>
+                    <MuiButton
+                      size="small"
+                      variant="outlined"
                       onClick={() => {
                         updateBedStatus(activeBedModal.id, 'maintenance');
+                        showNotification(`Bed ${activeBedModal.bedNumber} marked under Maintenance`, 'warning');
                         setActiveBedModal(null);
                       }}
-                      className="py-1.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-bold hover:bg-slate-200"
+                      sx={{
+                        color: '#475569',
+                        borderColor: '#cbd5e1',
+                        bgcolor: '#f8fafc',
+                        '&:hover': { bgcolor: '#f1f5f9', borderColor: '#94a3b8' },
+                        textTransform: 'none',
+                        fontWeight: 700,
+                        borderRadius: '0.5rem',
+                      }}
                     >
                       Maintenance
-                    </button>
+                    </MuiButton>
                   </div>
                 </div>
               </div>

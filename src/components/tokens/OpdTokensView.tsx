@@ -31,8 +31,15 @@ import {
   FlaskConical,
   Trash2,
 } from 'lucide-react';
+import Button from '@mui/material/Button';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
+import MuiBadge from '@mui/material/Badge';
 import { useHospital } from '../../context/HospitalContext';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import {
   OpdToken,
   TokenStatus,
@@ -66,6 +73,7 @@ export const OpdTokensView: React.FC = () => {
   } = useHospital();
 
   const { currentUser } = useAuth();
+  const { showNotification } = useNotification();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<TokenTab>('inward');
@@ -245,6 +253,10 @@ export const OpdTokensView: React.FC = () => {
 
     setTokenToPrint(newToken);
     setIsPrintTokenModalOpen(true);
+    showNotification(
+      `Token ${newToken.tokenDisplay} successfully inwarded for ${selectedPatient.firstName} ${selectedPatient.lastName}! Queue #${newToken.tokenNumber}.`,
+      'success'
+    );
     setFeedbackMessage(
       `Token ${newToken.tokenDisplay} successfully inwarded for ${selectedPatient.firstName} ${selectedPatient.lastName}! Queue Position: #${newToken.tokenNumber}.`
     );
@@ -309,6 +321,10 @@ export const OpdTokensView: React.FC = () => {
 
     setTokenToPrint(newToken);
     setIsPrintTokenModalOpen(true);
+    showNotification(
+      `New Patient ${newPat.firstName} registered (${newPat.mrn}) & Token ${newToken.tokenDisplay} inwarded!`,
+      'success'
+    );
     setFeedbackMessage(
       `New Patient ${newPat.firstName} registered (${newPat.mrn}) & Token ${newToken.tokenDisplay} inwarded!`
     );
@@ -342,6 +358,10 @@ export const OpdTokensView: React.FC = () => {
     }
 
     updateOpdTokenStatus(nextWaiting.id, 'in_consultation');
+    showNotification(
+      `Called Token ${nextWaiting.tokenDisplay} (${nextWaiting.patientName}) to ${nextWaiting.roomNumber || 'Doctor Cabin'}!`,
+      'info'
+    );
     setFeedbackMessage(
       `Called Token ${nextWaiting.tokenDisplay} (${nextWaiting.patientName}) to ${nextWaiting.roomNumber || 'Doctor Cabin'}!`
     );
@@ -503,48 +523,53 @@ export const OpdTokensView: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Controls */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl text-xs font-semibold">
-          <button
-            onClick={() => setActiveTab('inward')}
-            className={`px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
-              activeTab === 'inward'
-                ? 'bg-white text-slate-900 shadow-xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+        {/* Material UI Interactive Tabs with Live Badges */}
+        <div className="bg-slate-100/80 p-1 rounded-2xl border border-slate-200">
+          <Tabs
+            value={activeTab}
+            onChange={(_, val) => setActiveTab(val)}
+            textColor="primary"
+            indicatorColor="primary"
+            sx={{
+              minHeight: 40,
+              '& .MuiTabs-indicator': {
+                height: 3,
+                borderRadius: '3px 3px 0 0',
+                backgroundColor: '#0284c7',
+              },
+            }}
           >
-            <UserPlus className="w-3.5 h-3.5" />
-            Search & Inward Token
-          </button>
-
-          <button
-            onClick={() => setActiveTab('queue')}
-            className={`px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
-              activeTab === 'queue'
-                ? 'bg-white text-slate-900 shadow-xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Stethoscope className="w-3.5 h-3.5" />
-            Doctor Token Console
-            {waitingCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-800 text-[10px]">
-                {waitingCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('display_board')}
-            className={`px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
-              activeTab === 'display_board'
-                ? 'bg-white text-slate-900 shadow-xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            Waiting Hall TV Board
-          </button>
+            <Tab
+              value="inward"
+              icon={<UserPlus className="w-4 h-4" />}
+              iconPosition="start"
+              label="Search & Inward"
+              sx={{ fontWeight: 700, fontSize: '0.78rem', minHeight: 40, textTransform: 'none' }}
+            />
+            <Tab
+              value="queue"
+              icon={<Stethoscope className="w-4 h-4" />}
+              iconPosition="start"
+              label={
+                <div className="flex items-center gap-1.5">
+                  <span>Doctor Console</span>
+                  {waitingCount > 0 && (
+                    <span className="text-[10px] font-bold bg-sky-100 text-sky-800 px-1.5 py-0.2 rounded-full">
+                      {waitingCount}
+                    </span>
+                  )}
+                </div>
+              }
+              sx={{ fontWeight: 700, fontSize: '0.78rem', minHeight: 40, textTransform: 'none' }}
+            />
+            <Tab
+              value="display_board"
+              icon={<Building2 className="w-4 h-4" />}
+              iconPosition="start"
+              label="Waiting TV Board"
+              sx={{ fontWeight: 700, fontSize: '0.78rem', minHeight: 40, textTransform: 'none' }}
+            />
+          </Tabs>
         </div>
       </div>
 
@@ -1127,13 +1152,25 @@ export const OpdTokensView: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="contained"
+                color="success"
                 onClick={() => handleCallNextToken()}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
+                startIcon={<Volume2 className="w-4 h-4" />}
+                sx={{
+                  py: 0.9,
+                  px: 2.2,
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  borderRadius: 2.5,
+                  boxShadow: '0 4px 12px 0 rgba(5, 150, 105, 0.25)',
+                  textTransform: 'none',
+                  backgroundColor: '#059669',
+                  '&:hover': { backgroundColor: '#047857' },
+                }}
               >
-                <Volume2 className="w-4 h-4" />
                 Call Next Token
-              </button>
+              </Button>
             </div>
           </div>
 

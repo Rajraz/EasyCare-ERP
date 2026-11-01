@@ -18,8 +18,12 @@ import {
   ShoppingBag,
   Info,
 } from 'lucide-react';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import { useHospital } from '../../context/HospitalContext';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { Appointment, PrescriptionItem } from '../../types/hospital';
 import { Badge } from '../common/Badge';
 import { Modal } from '../common/Modal';
@@ -38,6 +42,7 @@ export const DoctorView: React.FC = () => {
     patients,
   } = useHospital();
   const { currentUser } = useAuth();
+  const { showNotification } = useNotification();
 
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(
     appointments[0] || null
@@ -130,13 +135,17 @@ export const DoctorView: React.FC = () => {
     setPrescribedItems([...prescribedItems, newItem]);
     setSelectedMedId('');
     setInstructions('Take with a full glass of water');
+    showNotification(`Added ${med.name} (${dosage}, ${frequency}, ${mealTiming})`, 'success');
   };
 
   const handleToggleLabTest = (testId: string) => {
+    const test = labTests.find((t) => t.id === testId);
     if (selectedLabTestIds.includes(testId)) {
       setSelectedLabTestIds(selectedLabTestIds.filter((id) => id !== testId));
+      if (test) showNotification(`Removed ${test.name} from lab orders`, 'info');
     } else {
       setSelectedLabTestIds([...selectedLabTestIds, testId]);
+      if (test) showNotification(`Selected ${test.name} (${formatCurrency(test.price)})`, 'success');
     }
   };
 
@@ -214,6 +223,10 @@ export const DoctorView: React.FC = () => {
       totalAmount,
       testCount: selectedLabTestIds.length,
     });
+    showNotification(
+      `Consultation completed for ${selectedAppointment.patientName}! Dispatched to Pharmacy Desk & Lab.`,
+      'success'
+    );
     setIsSuccessModalOpen(true);
   };
 
@@ -432,23 +445,34 @@ export const DoctorView: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Quick 1-Click Fast Presets */}
+                {/* Quick 1-Click Fast Presets (Interactive Material UI Chips) */}
                 <div className="p-2.5 bg-white border border-slate-200 rounded-xl space-y-1.5">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-amber-500" /> Quick Drug Templates (1-Click Fill):
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {quickMedList.map((q, idx) => (
-                      <button
+                      <Chip
                         key={idx}
-                        type="button"
+                        label={`${q.label} (${q.freq})`}
+                        size="small"
+                        clickable
                         onClick={() => applyQuickDrug(q)}
-                        className="px-2.5 py-1 bg-slate-50 hover:bg-teal-50 hover:border-teal-300 border border-slate-200 rounded-lg text-[11px] text-slate-700 font-semibold transition-all flex items-center gap-1 hover:text-teal-800"
-                      >
-                        <Pill className="w-3 h-3 text-teal-600" />
-                        <span>{q.label}</span>
-                        <span className="text-[9px] font-mono text-slate-400">({q.freq})</span>
-                      </button>
+                        variant={dosage === q.dosage && frequency === q.freq ? 'filled' : 'outlined'}
+                        color={dosage === q.dosage && frequency === q.freq ? 'primary' : 'default'}
+                        icon={<Pill className="w-3.5 h-3.5 text-teal-600" />}
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '0.72rem',
+                          cursor: 'pointer',
+                          borderRadius: 2,
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                            transform: 'translateY(-1px)',
+                          },
+                        }}
+                      />
                     ))}
                   </div>
                 </div>
@@ -508,21 +532,35 @@ export const DoctorView: React.FC = () => {
                         { code: '1-1-1-1', label: '1-1-1-1', desc: '4 times daily' },
                         { code: 'SOS', label: 'SOS', desc: 'When needed' },
                       ].map((item) => (
-                        <button
+                        <Button
                           key={item.code}
-                          type="button"
+                          variant={frequency === item.code ? 'contained' : 'outlined'}
+                          color="primary"
+                          size="small"
                           onClick={() => handleFrequencyChange(item.code)}
-                          className={`py-1.5 px-2 rounded-lg border text-center font-bold text-xs transition-all ${
-                            frequency === item.code
-                              ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
-                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                          }`}
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            py: 0.8,
+                            px: 1,
+                            minWidth: 0,
+                            borderRadius: 2.5,
+                            borderWidth: 1.5,
+                            backgroundColor: frequency === item.code ? '#0d9488' : '#ffffff',
+                            color: frequency === item.code ? '#ffffff' : '#334155',
+                            borderColor: frequency === item.code ? '#0d9488' : '#e2e8f0',
+                            textTransform: 'none',
+                            '&:hover': {
+                              backgroundColor: frequency === item.code ? '#0f766e' : '#f8fafc',
+                              borderColor: '#0d9488',
+                            },
+                          }}
                         >
-                          <div>{item.label}</div>
-                          <div className={`text-[9px] font-normal ${frequency === item.code ? 'text-teal-100' : 'text-slate-400'}`}>
+                          <span className="font-bold text-xs">{item.label}</span>
+                          <span className={`text-[9px] font-normal ${frequency === item.code ? 'text-teal-100' : 'text-slate-400'}`}>
                             {item.desc}
-                          </div>
-                        </button>
+                          </span>
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -539,27 +577,42 @@ export const DoctorView: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                       {[
-                        { id: 'After Food', label: 'After Food (PC)', hint: 'Post Cibum / After meals', color: 'emerald' },
-                        { id: 'Before Food', label: 'Before Food (AC)', hint: 'Ante Cibum / 30m prior', color: 'amber' },
-                        { id: 'With Food', label: 'With Food', hint: 'During main meals', color: 'sky' },
-                        { id: 'Empty Stomach', label: 'Empty Stomach', hint: 'Early AM fasting', color: 'purple' },
+                        { id: 'After Food', label: 'After Food (PC)', hint: 'Post Cibum / After meals' },
+                        { id: 'Before Food', label: 'Before Food (AC)', hint: 'Ante Cibum / 30m prior' },
+                        { id: 'With Food', label: 'With Food', hint: 'During main meals' },
+                        { id: 'Empty Stomach', label: 'Empty Stomach', hint: 'Early AM fasting' },
                       ].map((t) => (
-                        <button
+                        <Button
                           key={t.id}
-                          type="button"
+                          variant={mealTiming === t.id ? 'contained' : 'outlined'}
+                          size="small"
                           onClick={() => setMealTiming(t.id as any)}
-                          className={`py-1.5 px-2 rounded-lg border text-left transition-all ${
-                            mealTiming === t.id
-                              ? 'bg-teal-50 border-teal-500 text-teal-900 shadow-xs ring-1 ring-teal-500'
-                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                          }`}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            textAlign: 'left',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            py: 0.8,
+                            px: 1.5,
+                            borderRadius: 2.5,
+                            borderWidth: 1.5,
+                            backgroundColor: mealTiming === t.id ? '#0f766e' : '#ffffff',
+                            color: mealTiming === t.id ? '#ffffff' : '#334155',
+                            borderColor: mealTiming === t.id ? '#0f766e' : '#e2e8f0',
+                            textTransform: 'none',
+                            '&:hover': {
+                              backgroundColor: mealTiming === t.id ? '#115e59' : '#f8fafc',
+                              borderColor: '#0d9488',
+                            },
+                          }}
                         >
-                          <div className="font-bold text-xs flex items-center justify-between">
+                          <div className="font-bold text-xs flex items-center justify-between w-full">
                             <span>{t.label}</span>
-                            {mealTiming === t.id && <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />}
+                            {mealTiming === t.id && <CheckCircle2 className="w-3.5 h-3.5 text-teal-200" />}
                           </div>
-                          <div className="text-[9px] text-slate-400">{t.hint}</div>
-                        </button>
+                          <span className={`text-[9px] ${mealTiming === t.id ? 'text-teal-100' : 'text-slate-400'}`}>{t.hint}</span>
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -625,14 +678,24 @@ export const DoctorView: React.FC = () => {
                     </div>
 
                     <div className="sm:col-span-2">
-                      <button
+                      <Button
                         type="button"
+                        variant="contained"
                         disabled={!selectedMedId}
                         onClick={handleAddMedication}
-                        className="w-full py-2 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                        fullWidth
+                        startIcon={<PlusCircle className="w-4 h-4" />}
+                        sx={{
+                          py: 1,
+                          fontSize: '0.8rem',
+                          borderRadius: 2.5,
+                          backgroundColor: '#0d9488',
+                          textTransform: 'none',
+                          '&:hover': { backgroundColor: '#0f766e' },
+                        }}
                       >
-                        <PlusCircle className="w-4 h-4" /> Add Tablet
-                      </button>
+                        Add Tablet
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -695,16 +758,17 @@ export const DoctorView: React.FC = () => {
                               {item.instructions || 'As advised'}
                             </td>
                             <td className="py-2.5 px-3 text-right">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPrescribedItems(prescribedItems.filter((_, i) => i !== idx))
-                                }
-                                className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
-                                title="Remove medication"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <Tooltip title="Remove tablet from prescription" arrow>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setPrescribedItems(prescribedItems.filter((_, i) => i !== idx))
+                                  }
+                                  className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </Tooltip>
                             </td>
                           </tr>
                         ))}
@@ -793,14 +857,25 @@ export const DoctorView: React.FC = () => {
                   <Info className="w-4 h-4 text-sky-600 flex-shrink-0" />
                   Prescription will sync directly to Pharmacy Desk for medicine fulfillment & payment collection.
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="contained"
+                  color="success"
                   onClick={handleCompleteConsultation}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                  startIcon={<CheckCircle className="w-4 h-4" />}
+                  sx={{
+                    px: 3.5,
+                    py: 1.2,
+                    fontSize: '0.825rem',
+                    fontWeight: 700,
+                    borderRadius: 3,
+                    boxShadow: '0 4px 14px 0 rgba(5, 150, 105, 0.35)',
+                    textTransform: 'none',
+                    '&:hover': { backgroundColor: '#047857' },
+                  }}
                 >
-                  <CheckCircle className="w-4 h-4" />
                   Sign & Complete Consultation
-                </button>
+                </Button>
               </div>
             </div>
           ) : (

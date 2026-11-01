@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Activity,
   Lock,
@@ -8,9 +13,11 @@ import {
   AlertCircle,
   ArrowRight,
   Image as ImageIcon,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useHospital } from '../../context/HospitalContext';
+import { useNotification } from '../../context/NotificationContext';
 
 interface BannerPreset {
   id: string;
@@ -44,6 +51,7 @@ const BANNER_PRESETS: BannerPreset[] = [
 export const LoginPage: React.FC = () => {
   const { login, sessionError, clearSessionError } = useAuth();
   const { hospitalProfile } = useHospital();
+  const { showNotification } = useNotification();
 
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
@@ -54,6 +62,21 @@ export const LoginPage: React.FC = () => {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
 
   const currentBanner = BANNER_PRESETS[activeBannerIndex] || BANNER_PRESETS[0];
+
+  const demoRoles = [
+    { label: 'Super Admin', user: 'admin', pass: 'admin123' },
+    { label: 'Doctor', user: 'doctor', pass: 'doctor123' },
+    { label: 'Pharmacist', user: 'pharmacist', pass: 'pharm123' },
+    { label: 'Lab Tech', user: 'lab_tech', pass: 'lab123' },
+    { label: 'Receptionist', user: 'receptionist', pass: 'recep123' },
+  ];
+
+  const handleSelectRole = (user: string, pass: string, roleName: string) => {
+    setUsername(user);
+    setPassword(pass);
+    setErrorMessage(null);
+    showNotification(`Autofilled credentials for ${roleName}`, 'info');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +98,8 @@ export const LoginPage: React.FC = () => {
       setIsLoading(false);
       if (!res.success) {
         setErrorMessage(res.message || 'Authentication failed. Please verify your credentials.');
+      } else {
+        showNotification(`Welcome back to ${hospitalProfile.appName || 'Easy Care'}!`, 'success');
       }
     }, 350);
   };
@@ -166,13 +191,16 @@ export const LoginPage: React.FC = () => {
                 placeholder="Enter your password"
                 className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs placeholder-slate-400 focus:outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all font-medium"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+              <div className="absolute inset-y-0 right-0 pr-1.5 flex items-center">
+                <IconButton
+                  type="button"
+                  size="small"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </IconButton>
+              </div>
             </div>
           </div>
 
@@ -188,20 +216,57 @@ export const LoginPage: React.FC = () => {
             </label>
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="contained"
             disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-700 hover:to-teal-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-50 mt-2"
+            fullWidth
+            sx={{
+              py: 1.4,
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #059669 0%, #0d9488 50%, #10b981 100%)',
+              borderRadius: 3,
+              boxShadow: '0 8px 20px -4px rgba(16, 185, 129, 0.4)',
+              mt: 1.5,
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #047857 0%, #0f766e 50%, #059669 100%)',
+              },
+            }}
+            endIcon={!isLoading && <ArrowRight className="w-4 h-4" />}
           >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <span>Sign In</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
+            {isLoading ? <CircularProgress size={22} color="inherit" /> : 'Sign In'}
+          </Button>
+
+          {/* Quick Demo Access Pills */}
+          <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2 flex items-center justify-center gap-1">
+              <Sparkles className="w-3 h-3 text-emerald-600" /> Fast Demo 1-Click Role Fill
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              {demoRoles.map((role) => (
+                <Tooltip key={role.user} title={`Click to load ${role.user} credentials`} arrow>
+                  <Chip
+                    label={role.label}
+                    size="small"
+                    onClick={() => handleSelectRole(role.user, role.pass, role.label)}
+                    clickable
+                    variant={username === role.user ? 'filled' : 'outlined'}
+                    color={username === role.user ? 'primary' : 'default'}
+                    sx={{
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(13, 148, 136, 0.08)',
+                      },
+                    }}
+                  />
+                </Tooltip>
+              ))}
+            </div>
+          </div>
         </form>
       </div>
 

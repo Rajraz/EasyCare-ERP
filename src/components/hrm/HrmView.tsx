@@ -1268,7 +1268,7 @@ export const HrmView: React.FC = () => {
             <div className="border-b-2 border-slate-900 pb-3 flex justify-between items-start">
               <div>
                 <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
-                  AAYUSH APEX SUPER-SPECIALITY HOSPITAL
+                  EASY CARE SUPER-SPECIALITY HOSPITAL
                 </h2>
                 <p className="text-[10px] text-slate-500">Security Checkpoint & Staff Movement Gate Pass</p>
                 <p className="text-[10px] text-slate-400">NABH Accredited • Security Desk Ext: 104</p>
@@ -1344,7 +1344,7 @@ export const HrmView: React.FC = () => {
           isOpen={Boolean(selectedPayslip)}
           onClose={() => setSelectedPayslip(null)}
           title="Official Hospital Salary Payslip (Indian Format)"
-          subtitle={`Pay Period: ${selectedPayslip.monthYear} | Aayush Apex Hospital`}
+          subtitle={`Pay Period: ${selectedPayslip.monthYear} | Easy Care Hospital`}
           maxWidth="2xl"
         >
           <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-5 text-xs font-sans">
@@ -1352,7 +1352,7 @@ export const HrmView: React.FC = () => {
             <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
               <div>
                 <h2 className="text-base font-extrabold text-slate-900">
-                  AAYUSH APEX SUPER-SPECIALITY HOSPITAL
+                  EASY CARE SUPER-SPECIALITY HOSPITAL
                 </h2>
                 <p className="text-slate-600 text-[11px]">
                   Healthcare Administration & Human Resources Division

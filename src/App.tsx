@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { muiTheme } from './theme/muiTheme';
+import { NotificationProvider } from './context/NotificationContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { HospitalProvider } from './context/HospitalContext';
 import { LoginPage } from './components/login/LoginPage';
@@ -88,11 +92,16 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <HospitalProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </HospitalProvider>
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <NotificationProvider>
+        <HospitalProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </HospitalProvider>
+      </NotificationProvider>
+    </ThemeProvider>
   );
 };
 

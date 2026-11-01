@@ -25,7 +25,14 @@ import {
   Clock,
   Sparkles,
 } from 'lucide-react';
+import Button from '@mui/material/Button';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
+import MuiBadge from '@mui/material/Badge';
 import { useHospital } from '../../context/HospitalContext';
+import { useNotification } from '../../context/NotificationContext';
 import { PharmacyItem, PharmacyBill, PharmacyBillItem, Prescription } from '../../types/hospital';
 import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
@@ -43,6 +50,7 @@ export const PharmacyView: React.FC = () => {
     patients,
     hospitalProfile,
   } = useHospital();
+  const { showNotification } = useNotification();
 
   const [activeTab, setActiveTab] = useState<'billing' | 'history' | 'inventory' | 'prescriptions'>('billing');
   const [searchTerm, setSearchTerm] = useState('');
@@ -145,6 +153,7 @@ export const PharmacyView: React.FC = () => {
     setBillingItems([...billingItems, newItem]);
     setSelectedMedId('');
     setItemQty(1);
+    showNotification(`Added ${med.name} (Qty: ${itemQty}) to bill cart`, 'info');
   };
 
   const handleRemoveBillingItem = (idx: number) => {
@@ -200,6 +209,7 @@ export const PharmacyView: React.FC = () => {
     setCustomerPhone('');
     setSelectedPatientId('');
     setSelectedInvoiceToPrint(newBill);
+    showNotification(`Generated GST Tax Invoice ${newBill.billNumber} for ${customerName}!`, 'success');
   };
 
   // Helper to calculate totals for prescription fulfillment
@@ -293,6 +303,7 @@ export const PharmacyView: React.FC = () => {
     // Close fulfillment modal and display printable invoice
     setSelectedRxForDelivery(null);
     setSelectedInvoiceToPrint(newBill);
+    showNotification(`Prescription fulfilled! Dispatched medicines and generated bill ${newBill.billNumber}`, 'success');
   };
 
   const handleAddItemSubmit = (e: React.FormEvent) => {
@@ -308,6 +319,7 @@ export const PharmacyView: React.FC = () => {
     });
 
     setIsAddItemModalOpen(false);
+    showNotification(`Added new drug ${itemForm.name} to Indian formulary master`, 'success');
   };
 
   const filteredItems = pharmacyItems.filter(
@@ -351,49 +363,76 @@ export const PharmacyView: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-slate-200 bg-white px-4 rounded-xl shadow-xs overflow-x-auto">
-        {[
-          { id: 'billing', label: 'Individual Medicine Billing (GST Invoice)', icon: Receipt },
-          { id: 'history', label: 'Pharmacy Invoices Register', icon: FileText, count: pharmacyBills.length },
-          { id: 'inventory', label: 'Formulary Master & Stock (₹)', icon: Package, count: pharmacyItems.length },
-          {
-            id: 'prescriptions',
-            label: 'Doctor Prescriptions Desk',
-            icon: Pill,
-            count: prescriptions.filter((p) => !p.isDispensed).length,
-            badgeColor: 'amber',
-          },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`py-3.5 px-4 text-xs font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-2 ${
-                isActive
-                  ? 'border-teal-600 text-teal-700'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-              {tab.count !== undefined && (
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    tab.badgeColor === 'amber'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-slate-100 text-slate-600'
-                  }`}
-                >
-                  {tab.count}
+      {/* Interactive Material UI Tabs with Live Badges */}
+      <div className="bg-white px-3 py-1 rounded-2xl border border-slate-200 shadow-xs">
+        <Tabs
+          value={activeTab}
+          onChange={(_, val) => setActiveTab(val)}
+          variant="scrollable"
+          scrollButtons="auto"
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{
+            minHeight: 46,
+            '& .MuiTabs-indicator': {
+              height: 3,
+              borderRadius: '3px 3px 0 0',
+              backgroundColor: '#0d9488',
+            },
+          }}
+        >
+          <Tab
+            value="billing"
+            icon={<Receipt className="w-4 h-4" />}
+            iconPosition="start"
+            label="Individual Medicine Billing"
+            sx={{ fontWeight: 700, fontSize: '0.8rem', minHeight: 46 }}
+          />
+          <Tab
+            value="history"
+            icon={<FileText className="w-4 h-4" />}
+            iconPosition="start"
+            label={
+              <div className="flex items-center gap-1.5">
+                <span>Invoices Register</span>
+                <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-full">
+                  {pharmacyBills.length}
                 </span>
-              )}
-            </button>
-          );
-        })}
+              </div>
+            }
+            sx={{ fontWeight: 700, fontSize: '0.8rem', minHeight: 46 }}
+          />
+          <Tab
+            value="inventory"
+            icon={<Package className="w-4 h-4" />}
+            iconPosition="start"
+            label={
+              <div className="flex items-center gap-1.5">
+                <span>Formulary & Stock</span>
+                <span className="text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 px-1.5 py-0.5 rounded-full">
+                  {pharmacyItems.length}
+                </span>
+              </div>
+            }
+            sx={{ fontWeight: 700, fontSize: '0.8rem', minHeight: 46 }}
+          />
+          <Tab
+            value="prescriptions"
+            icon={<Pill className="w-4 h-4" />}
+            iconPosition="start"
+            label={
+              <div className="flex items-center gap-1.5">
+                <span>Doctor Prescriptions Desk</span>
+                {prescriptions.filter((p) => !p.isDispensed).length > 0 && (
+                  <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full animate-pulse">
+                    {prescriptions.filter((p) => !p.isDispensed).length} Pending
+                  </span>
+                )}
+              </div>
+            }
+            sx={{ fontWeight: 700, fontSize: '0.8rem', minHeight: 46 }}
+          />
+        </Tabs>
       </div>
 
       {/* Tab 1: Individual Medicine Billing (GST Invoice) */}
@@ -551,14 +590,24 @@ export const PharmacyView: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-2 flex items-end">
-                    <button
+                    <Button
                       type="button"
+                      variant="contained"
                       disabled={!selectedMedId}
                       onClick={handleAddMedicineToBill}
-                      className="w-full py-2 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1 shadow-xs"
+                      fullWidth
+                      startIcon={<PlusCircle className="w-4 h-4" />}
+                      sx={{
+                        py: 1,
+                        fontSize: '0.8rem',
+                        borderRadius: 2.5,
+                        backgroundColor: '#0d9488',
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: '#0f766e' },
+                      }}
                     >
-                      <PlusCircle className="w-4 h-4" /> Add Item
-                    </button>
+                      Add Item
+                    </Button>
                   </div>
                 </div>
 
@@ -814,13 +863,25 @@ export const PharmacyView: React.FC = () => {
                 </div>
               </div>
 
-              <button
+              <Button
                 type="submit"
+                variant="contained"
                 disabled={billingItems.length === 0}
-                className="w-full py-3 bg-teal-600 hover:bg-teal-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-600/20 transition-all flex items-center justify-center gap-2"
+                fullWidth
+                startIcon={<Printer className="w-4 h-4" />}
+                sx={{
+                  py: 1.4,
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  backgroundColor: '#0d9488',
+                  boxShadow: '0 4px 14px 0 rgba(13, 148, 136, 0.35)',
+                  textTransform: 'none',
+                  '&:hover': { backgroundColor: '#0f766e' },
+                }}
               >
-                <Printer className="w-4 h-4" /> Generate & Print Pharmacy GST Bill
-              </button>
+                Generate & Print Pharmacy GST Bill
+              </Button>
             </div>
           </div>
         </form>
@@ -980,12 +1041,30 @@ export const PharmacyView: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => updatePharmacyStock(med.id, 50)}
-                          className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold rounded border border-teal-200 text-xs"
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            updatePharmacyStock(med.id, 50);
+                            showNotification(`Restocked 50 strips of ${med.name}`, 'success');
+                          }}
+                          sx={{
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            borderRadius: 2,
+                            borderColor: '#14b8a6',
+                            color: '#0f766e',
+                            textTransform: 'none',
+                            py: 0.5,
+                            px: 1.5,
+                            '&:hover': {
+                              borderColor: '#0d9488',
+                              backgroundColor: 'rgba(20, 184, 166, 0.08)',
+                            },
+                          }}
                         >
                           +50 Strips
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   );
@@ -1069,17 +1148,29 @@ export const PharmacyView: React.FC = () => {
                   </span>
 
                   {!rx.isDispensed ? (
-                    <button
+                    <Button
+                      variant="contained"
+                      size="small"
                       onClick={() => {
                         setSelectedRxForDelivery(rx);
                         setRxCashTendered('');
                         setRxDiscountPercent(0);
                       }}
-                      className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                      startIcon={<ShoppingBag className="w-4 h-4" />}
+                      sx={{
+                        py: 0.9,
+                        px: 2,
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        borderRadius: 2.5,
+                        backgroundColor: '#0d9488',
+                        boxShadow: '0 2px 8px 0 rgba(13, 148, 136, 0.25)',
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: '#0f766e' },
+                      }}
                     >
-                      <ShoppingBag className="w-4 h-4" />
                       Deliver, Bill & Receive Payment
-                    </button>
+                    </Button>
                   ) : (
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
@@ -1373,14 +1464,25 @@ export const PharmacyView: React.FC = () => {
                       >
                         Cancel
                       </button>
-                      <button
+                      <Button
                         type="button"
+                        variant="contained"
                         onClick={handleConfirmRxPaymentAndDispense}
-                        className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-xs flex items-center gap-1.5"
+                        startIcon={<CheckCircle2 className="w-4 h-4" />}
+                        sx={{
+                          px: 3,
+                          py: 1,
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          borderRadius: 2.5,
+                          backgroundColor: '#0d9488',
+                          textTransform: 'none',
+                          boxShadow: '0 4px 12px 0 rgba(13, 148, 136, 0.3)',
+                          '&:hover': { backgroundColor: '#0f766e' },
+                        }}
                       >
-                        <CheckCircle2 className="w-4 h-4" />
                         Confirm Payment & Deliver Medicines
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>

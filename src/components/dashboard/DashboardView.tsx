@@ -11,6 +11,12 @@ import {
   Ambulance,
   Pill,
 } from 'lucide-react';
+import {
+  Button as MuiButton,
+  Tooltip as MuiTooltip,
+  LinearProgress,
+  Chip as MuiChip,
+} from '@mui/material';
 import { useHospital } from '../../context/HospitalContext';
 import { StatCard } from '../common/StatCard';
 import { Badge } from '../common/Badge';
@@ -21,7 +27,7 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   Legend,
   PieChart,
   Pie,
@@ -95,7 +101,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight">
-              Aayush Apex Executive Command Center
+              Easy Care Executive Command Center
             </h1>
             <p className="text-xs text-slate-300 max-w-2xl mt-1">
               Unified hospital-wide clinical, staff attendance, duty permissions, pharmacy, laboratory, and financial
@@ -104,34 +110,91 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => onNavigate('patients')}
-              className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-1.5"
-            >
-              <PlusCircle className="w-4 h-4" />
-              New Patient
-            </button>
-            <button
-              onClick={() => onNavigate('pharmacy')}
-              className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-1.5"
-            >
-              <Pill className="w-4 h-4" />
-              Medicine Billing
-            </button>
-            <button
-              onClick={() => onNavigate('wards')}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-colors border border-slate-700 flex items-center gap-1.5"
-            >
-              <BedDouble className="w-4 h-4" />
-              Bed Allocator
-            </button>
-            <button
-              onClick={() => onNavigate('billing')}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-colors border border-slate-700 flex items-center gap-1.5"
-            >
-              <Receipt className="w-4 h-4" />
-              Patient Bill
-            </button>
+            <MuiTooltip title="Register a new patient or inward OPD token" arrow>
+              <MuiButton
+                variant="contained"
+                onClick={() => onNavigate('patients')}
+                sx={{
+                  bgcolor: '#0284c7',
+                  '&:hover': { bgcolor: '#0369a1' },
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.75rem',
+                  py: 1,
+                  px: 2,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }}
+                startIcon={<PlusCircle className="w-4 h-4" />}
+              >
+                New Patient
+              </MuiButton>
+            </MuiTooltip>
+
+            <MuiTooltip title="Central pharmacy counter, retail & prescription fulfillment" arrow>
+              <MuiButton
+                variant="contained"
+                onClick={() => onNavigate('pharmacy')}
+                sx={{
+                  bgcolor: '#0d9488',
+                  '&:hover': { bgcolor: '#0f766e' },
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.75rem',
+                  py: 1,
+                  px: 2,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }}
+                startIcon={<Pill className="w-4 h-4" />}
+              >
+                Medicine Billing
+              </MuiButton>
+            </MuiTooltip>
+
+            <MuiTooltip title="Interactive ICU, Emergency & General ward floor map" arrow>
+              <MuiButton
+                variant="outlined"
+                onClick={() => onNavigate('wards')}
+                sx={{
+                  color: '#e2e8f0',
+                  borderColor: '#334155',
+                  bgcolor: '#1e293b',
+                  '&:hover': { bgcolor: '#334155', borderColor: '#475569' },
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.75rem',
+                  py: 1,
+                  px: 2,
+                }}
+                startIcon={<BedDouble className="w-4 h-4" />}
+              >
+                Bed Allocator
+              </MuiButton>
+            </MuiTooltip>
+
+            <MuiTooltip title="Patient settlement, GST invoices & TPA claims" arrow>
+              <MuiButton
+                variant="outlined"
+                onClick={() => onNavigate('billing')}
+                sx={{
+                  color: '#e2e8f0',
+                  borderColor: '#334155',
+                  bgcolor: '#1e293b',
+                  '&:hover': { bgcolor: '#334155', borderColor: '#475569' },
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.75rem',
+                  py: 1,
+                  px: 2,
+                }}
+                startIcon={<Receipt className="w-4 h-4" />}
+              >
+                Patient Bill
+              </MuiButton>
+            </MuiTooltip>
           </div>
         </div>
       </div>
@@ -153,12 +216,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                   </p>
                 </div>
               </div>
-              <button
+              <MuiButton
+                variant="contained"
+                size="small"
                 onClick={() => onNavigate('laboratory')}
-                className="px-2.5 py-1 bg-rose-600 text-white rounded-lg font-semibold hover:bg-rose-700 transition-colors"
+                sx={{
+                  bgcolor: '#e11d48',
+                  '&:hover': { bgcolor: '#be123c' },
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.5rem',
+                }}
               >
                 Review LIS
-              </button>
+              </MuiButton>
             </div>
           )}
 
@@ -175,12 +247,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                   </p>
                 </div>
               </div>
-              <button
+              <MuiButton
+                variant="contained"
+                size="small"
                 onClick={() => onNavigate('pharmacy')}
-                className="px-2.5 py-1 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+                sx={{
+                  bgcolor: '#d97706',
+                  '&:hover': { bgcolor: '#b45309' },
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.5rem',
+                }}
               >
                 Restock
-              </button>
+              </MuiButton>
             </div>
           )}
         </div>
@@ -244,7 +325,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               <BarChart data={admissionTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis dataKey="day" stroke="#94a3b8" fontSize={11} />
                 <YAxis stroke="#94a3b8" fontSize={11} />
-                <Tooltip
+                <RechartsTooltip
                   contentStyle={{
                     backgroundColor: '#0f172a',
                     borderRadius: '8px',
@@ -292,7 +373,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip
+                  <RechartsTooltip
                     formatter={(val: number) => formatCurrency(val)}
                     contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', color: '#fff', fontSize: '11px' }}
                   />
@@ -324,12 +405,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               <BedDouble className="w-4 h-4 text-sky-600" />
               ICU & Critical Care Beds
             </h2>
-            <button
+            <MuiButton
+              size="small"
               onClick={() => onNavigate('wards')}
-              className="text-xs text-sky-600 hover:underline font-semibold"
+              sx={{ textTransform: 'none', fontSize: '0.75rem', fontWeight: 600, color: '#0284c7' }}
             >
               Full Floor Map
-            </button>
+            </MuiButton>
+          </div>
+
+          <div className="mb-3">
+            <div className="flex justify-between items-center text-xs mb-1">
+              <span className="text-slate-500 font-medium">Hospital Inpatient Occupancy</span>
+              <span className="font-bold text-sky-700">{bedOccupancyRate}%</span>
+            </div>
+            <LinearProgress
+              variant="determinate"
+              value={bedOccupancyRate}
+              sx={{
+                height: 6,
+                borderRadius: 3,
+                bgcolor: '#e2e8f0',
+                '& .MuiLinearProgress-bar': {
+                  bgcolor: bedOccupancyRate > 85 ? '#e11d48' : bedOccupancyRate > 70 ? '#f59e0b' : '#0d9488',
+                },
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
@@ -368,12 +469,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 <HeartPulse className="w-4 h-4 text-rose-600" />
                 Active Surgery (OT) Schedule
               </h2>
-              <button
+              <MuiButton
+                size="small"
                 onClick={() => onNavigate('operations')}
-                className="text-xs text-sky-600 hover:underline font-semibold"
+                sx={{ textTransform: 'none', fontSize: '0.75rem', fontWeight: 600, color: '#0284c7' }}
               >
                 Operations
-              </button>
+              </MuiButton>
             </div>
 
             <div className="space-y-2.5">
@@ -420,12 +522,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 <Pill className="w-4 h-4 text-teal-600" />
                 Central Pharmacy Status (₹)
               </h2>
-              <button
+              <MuiButton
+                size="small"
                 onClick={() => onNavigate('pharmacy')}
-                className="text-xs text-sky-600 hover:underline font-semibold"
+                sx={{ textTransform: 'none', fontSize: '0.75rem', fontWeight: 600, color: '#0d9488' }}
               >
                 Pharmacy Desk
-              </button>
+              </MuiButton>
             </div>
 
             <div className="space-y-2">
@@ -453,12 +556,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <button
+          <MuiButton
+            variant="contained"
+            fullWidth
             onClick={() => onNavigate('pharmacy')}
-            className="w-full mt-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl font-bold text-xs border border-teal-200 transition-colors flex items-center justify-center gap-1.5"
+            sx={{
+              mt: 2,
+              bgcolor: '#0d9488',
+              '&:hover': { bgcolor: '#0f766e' },
+              textTransform: 'none',
+              fontWeight: 700,
+              fontSize: '0.75rem',
+              borderRadius: '0.75rem',
+              py: 1,
+            }}
+            startIcon={<Pill className="w-4 h-4" />}
           >
             Individual Medicine Billing Counter (GST)
-          </button>
+          </MuiButton>
         </div>
       </div>
     </div>

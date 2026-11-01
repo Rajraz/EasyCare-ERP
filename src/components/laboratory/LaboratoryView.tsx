@@ -10,7 +10,15 @@ import {
   Search,
   Filter,
 } from 'lucide-react';
+import {
+  Button as MuiButton,
+  Chip as MuiChip,
+  Tabs as MuiTabs,
+  Tab as MuiTab,
+  Tooltip as MuiTooltip,
+} from '@mui/material';
 import { useHospital } from '../../context/HospitalContext';
+import { useNotification } from '../../context/NotificationContext';
 import { LabOrder, LabTest } from '../../types/hospital';
 import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
@@ -18,6 +26,7 @@ import { formatCurrency, formatDate } from '../../lib/utils';
 
 export const LaboratoryView: React.FC = () => {
   const { labOrders, labTests, updateLabOrderResult } = useHospital();
+  const { showNotification } = useNotification();
 
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,6 +50,7 @@ export const LaboratoryView: React.FC = () => {
     if (!activeResultModal) return;
 
     updateLabOrderResult(activeResultModal.id, resultValue, resultNotes, isAbnormal);
+    showNotification(`Diagnostic result verified & updated for ${activeResultModal.patientName} (${activeResultModal.testName})`, 'success');
     setActiveResultModal(null);
   };
 
@@ -96,20 +106,39 @@ export const LaboratoryView: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          {['all', 'pending', 'verified', 'abnormal'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
-                activeFilter === filter
-                  ? 'bg-sky-600 text-white shadow-xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
+        <div className="w-full md:w-auto">
+          <MuiTabs
+            value={activeFilter}
+            onChange={(_, val) => setActiveFilter(val)}
+            sx={{
+              minHeight: 36,
+              '& .MuiTabs-indicator': { bgcolor: '#0284c7' },
+              '& .MuiTab-root': {
+                minHeight: 36,
+                py: 0.5,
+                px: 1.5,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                color: '#64748b',
+                '&.Mui-selected': { color: '#0284c7' },
+              },
+            }}
+          >
+            <MuiTab value="all" label={`All Orders (${labOrders.length})`} />
+            <MuiTab
+              value="pending"
+              label={`In Progress (${labOrders.filter((o) => o.status === 'pending_sample' || o.status === 'processing').length})`}
+            />
+            <MuiTab
+              value="verified"
+              label={`Verified (${labOrders.filter((o) => o.status === 'verified').length})`}
+            />
+            <MuiTab
+              value="abnormal"
+              label={`Critical (${labOrders.filter((o) => o.isAbnormal).length})`}
+            />
+          </MuiTabs>
         </div>
       </div>
 
@@ -194,19 +223,45 @@ export const LaboratoryView: React.FC = () => {
                 <td className="py-3.5 px-4 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     {ord.status !== 'verified' ? (
-                      <button
+                      <MuiButton
+                        size="small"
+                        variant="contained"
                         onClick={() => handleOpenResultEntry(ord)}
-                        className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg text-xs transition-colors"
+                        sx={{
+                          bgcolor: '#0284c7',
+                          '&:hover': { bgcolor: '#0369a1' },
+                          textTransform: 'none',
+                          fontWeight: 700,
+                          fontSize: '0.75rem',
+                          borderRadius: '0.5rem',
+                          py: 0.5,
+                          px: 1.5,
+                        }}
+                        startIcon={<FileCheck className="w-3.5 h-3.5" />}
                       >
                         Enter Results
-                      </button>
+                      </MuiButton>
                     ) : (
-                      <button
+                      <MuiButton
+                        size="small"
+                        variant="outlined"
                         onClick={() => setActivePrintModal(ord)}
-                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition-colors inline-flex items-center gap-1.5"
+                        sx={{
+                          color: '#334155',
+                          borderColor: '#cbd5e1',
+                          bgcolor: '#f8fafc',
+                          '&:hover': { bgcolor: '#f1f5f9', borderColor: '#94a3b8' },
+                          textTransform: 'none',
+                          fontWeight: 700,
+                          fontSize: '0.75rem',
+                          borderRadius: '0.5rem',
+                          py: 0.5,
+                          px: 1.5,
+                        }}
+                        startIcon={<Printer className="w-3.5 h-3.5" />}
                       >
-                        <Printer className="w-3.5 h-3.5" /> View Report
-                      </button>
+                        View Report
+                      </MuiButton>
                     )}
                   </div>
                 </td>
@@ -324,7 +379,7 @@ export const LaboratoryView: React.FC = () => {
             <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
               <div>
                 <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
-                  AAYUSH APEX SUPER-SPECIALITY DIAGNOSTIC LABORATORIES
+                  EASY CARE SUPER-SPECIALITY DIAGNOSTIC LABORATORIES
                 </h2>
                 <p className="text-[11px] text-slate-500">
                   NABL & NABH Accredited Clinical Pathology & Molecular Diagnostic Center
